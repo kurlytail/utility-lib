@@ -1,0 +1,18 @@
+com.bst.configuration.utility.test.EmailServiceTest.sendAndReceiveEmailTest=[
+  "\u003c!DOCTYPE html\u003e\r\n\u003chtml\u003e\r\n\u003cbody\u003e\r\n    \u003cdiv\u003etest1\u003c/div\u003e\r\n    \u003cdiv\u003etest2\u003c/div\u003e\r\n\u003c/body\u003e\r\n\u003c/html\u003e\r\n",
+  {
+    "e": {},
+    "match": false,
+    "want_line": false
+  },
+  [
+    {
+      "address": "some@email"
+    }
+  ],
+  [
+    {
+      "address": "my@email"
+    }
+  ]
+]
