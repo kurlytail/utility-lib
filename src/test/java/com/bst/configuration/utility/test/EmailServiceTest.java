@@ -15,7 +15,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -54,7 +53,6 @@ public class EmailServiceTest {
 	}
 
 	@Test
-	@DisplayName("Can send using email service and receive using greenmail")
 	public void sendAndReceiveEmailTest() throws IOException, MessagingException {
 		
 		emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", new Object() {
