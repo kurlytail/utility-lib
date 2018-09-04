@@ -55,7 +55,7 @@ public class EmailServiceTest {
 	@Test
 	public void sendAndReceiveEmailTest() throws IOException, MessagingException {
 		
-		emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", new Object() {
+		emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", "dto", new Object() {
 			public String testField1 = "test1";
 			public String testField2 = "test2";
 		}, Locale.ENGLISH);
