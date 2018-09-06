@@ -1,43 +1,38 @@
 package com.bst.utility.components;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Locale;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.context.IContext;
-import org.thymeleaf.context.WebContext;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 @Service
-public class EmailService {
+public class EmailService implements ApplicationListener<ServletWebServerInitializedEvent> {
 
 	@Autowired
 	private MailSender mailSender;
-	
+
 	@Autowired
 	private SpringTemplateEngine templateEngine;
 	
 	@Autowired
-	private ServletContext servletContext; 
+	private ServletContext servletContext;
+
+	private String serverName;
+	private int port;
 
 	public MailSender getMailSender() {
 		return mailSender;
@@ -47,37 +42,43 @@ public class EmailService {
 		this.mailSender = mailSender;
 	}
 
-	public void sendMessage(final String[] recepients, final String template, 
-			final String from, final String subject, final String dtoName,
-			final Object dto, final Locale locale)
-			throws MessagingException {
+	public void sendMessage(final String[] recepients, final String template, final String from, final String subject,
+			final String dtoName, final Object dto, final Locale locale) throws MessagingException {
 
-
-		IContext context;
-		
-		final JavaMailSender javaMailSender = (JavaMailSender)getMailSender();
+		final JavaMailSender javaMailSender = (JavaMailSender) getMailSender();
 		final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
+
+		final Context context = new Context(locale);
+		context.setVariable(dtoName, dto);
 		
-	    RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-	    if (requestAttributes instanceof ServletRequestAttributes) {
-	        HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
-	        WebContext webContext = new WebContext(request, new MockHttpServletResponse(), servletContext);
-			webContext.setVariable(dtoName, dto);
-	        context = webContext;
-	    } else {
-			final Context ctx = new Context(locale);
-			ctx.setVariable(dtoName, dto);
-			context = ctx;
-	    }
+		String prefix = "http://" + serverName;
+		if (this.port == 443) {
+			prefix = "https://" + serverName;
+		} else if (this.port != 22) {
+			prefix = prefix + ":" + this.port;
+		}
+		prefix = prefix + servletContext.getContextPath();
 		
-	    final String htmlContent = this.templateEngine.process(template, context);
-	    
+		context.setVariable("DomainURL", prefix);
+
+		final String htmlContent = this.templateEngine.process(template, context);
+
 		helper.setText(htmlContent, true);
 		helper.setSubject(subject);
 		helper.setFrom(from);
 		helper.setTo(recepients);
-		
+
 		javaMailSender.send(mimeMessage);
+	}
+
+	@Override
+	public void onApplicationEvent(ServletWebServerInitializedEvent event) {
+		this.port = event.getWebServer().getPort();
+		try {
+			this.serverName = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 }
