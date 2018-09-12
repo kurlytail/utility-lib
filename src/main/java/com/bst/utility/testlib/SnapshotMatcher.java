@@ -57,7 +57,7 @@ public class SnapshotMatcher {
 			return;
 		}
 
-		final String toMatch = snapshots.getJSONArray(snapshotTestName).getString(snapshotSequence);
+		final String toMatch = snapshots.getJSONArray(snapshotTestName).get(snapshotSequence).toString();
 		final JsonNode tree1 = objectMapper.readTree(toMatch);
 		final JsonNode tree2 = objectMapper.readTree(jsonString);
 		if (!tree1.equals(tree2)) {
