@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.test.context.TestContext;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SnapshotMatcher {
@@ -46,13 +47,20 @@ public class SnapshotMatcher {
 
 		JSONArray snapshotArray = snapshots.getJSONArray(snapshotTestName);
 		if (snapshotArray.isNull(snapshotSequence)) {
-			snapshots.accumulate(snapshotTestName, jsonString);
+			try {
+				JSONObject jsonObject = new JSONObject(jsonString);
+				snapshots.accumulate(snapshotTestName, jsonObject);
+			} catch (Exception ex) {
+				snapshots.accumulate(snapshotTestName, jsonString);
+			}
 			snapshotsUpdated = true;
 			return;
 		}
 
-		String toMatch = snapshots.getJSONArray(snapshotTestName).getString(snapshotSequence);
-		if (!toMatch.equals(jsonString)) {
+		final String toMatch = snapshots.getJSONArray(snapshotTestName).getString(snapshotSequence);
+		final JsonNode tree1 = objectMapper.readTree(toMatch);
+		final JsonNode tree2 = objectMapper.readTree(jsonString);
+		if (!tree1.equals(tree2)) {
 			snapshotsUpdated = false;
 			throw new Exception("Snapshot mismatch for " + snapshotTestName + " at " + snapshotSequence);
 		}
@@ -67,7 +75,8 @@ public class SnapshotMatcher {
 			File file = new File(snapshotName);
 			
 			PrintWriter outputFile = new PrintWriter(file.getAbsolutePath());
-			String finalSnapshot = snapshots.toString();
+			String finalSnapshot = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+					objectMapper.readTree(snapshots.toString()));
 			outputFile.write(finalSnapshot);
 			outputFile.close();
 		}
