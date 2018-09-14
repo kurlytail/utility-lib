@@ -1,12 +1,10 @@
 {
   "sendAndReceiveEmailTest" : [ "<!DOCTYPE html>\r\n<html>\r\n<body>\r\n    <div>test1</div>\r\n    <div>test2</div>\r\n</body>\r\n</html>\r\n", [ {
     "address" : "some@email",
-    "personal" : null,
     "type" : "rfc822",
     "group" : false
   } ], [ {
     "address" : "my@email",
-    "personal" : null,
     "type" : "rfc822",
     "group" : false
   } ] ]

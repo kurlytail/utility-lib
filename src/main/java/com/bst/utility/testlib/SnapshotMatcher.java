@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 
 import org.springframework.test.context.TestContext;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -19,6 +20,7 @@ public class SnapshotMatcher {
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	SnapshotMatcher(TestContext testContext) throws Exception {
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/") + ".snap";
 		File file = new File(snapshotName);
 		snapshots = file.exists() ? objectMapper.readTree(file) : objectMapper.createObjectNode();
@@ -28,6 +30,9 @@ public class SnapshotMatcher {
 		++snapshotSequence;
 
 		JsonNode objectTree = objectMapper.valueToTree(objectToMatch);
+		if (objectToMatch == null) {
+			objectTree = objectMapper.createObjectNode();
+		}
 
 		if (!snapshots.has(snapshotTestName)) {
 			JsonNode snapshotArray = objectMapper.createArrayNode();
@@ -45,7 +50,8 @@ public class SnapshotMatcher {
 			return;
 		}
 
-		if (!objectTree.equals(snapshotArray.get(snapshotSequence))) {
+		JsonNode compareTo = snapshotArray.get(snapshotSequence);
+		if (objectTree == compareTo || !objectTree.toString().equals(compareTo.toString())) {
 			snapshotsUpdated = false;
 			throw new Exception("Snapshot mismatch for " + snapshotTestName + " at " + snapshotSequence);
 		}
