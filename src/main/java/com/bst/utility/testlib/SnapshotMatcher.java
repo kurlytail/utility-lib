@@ -2,18 +2,16 @@ package com.bst.utility.testlib;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.test.context.TestContext;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SnapshotMatcher {
-	private JSONObject snapshots;
+	private JsonNode snapshots;
 	private Object objectToMatch;
 	private boolean snapshotsUpdated = false;
 	private int snapshotSequence = -1;
@@ -23,44 +21,31 @@ public class SnapshotMatcher {
 	SnapshotMatcher(TestContext testContext) throws Exception {
 		String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/") + ".snap";
 		File file = new File(snapshotName);
-
-		if (file.exists()) {
-			String content = new String(Files.readAllBytes(Paths.get(snapshotName)));
-			snapshots = new JSONObject(content);
-		} else {
-			snapshots = new JSONObject();
-		}
+		snapshots = file.exists() ? objectMapper.readTree(file) : objectMapper.createObjectNode();
 	}
 
 	public void toMatchSnapshot() throws Exception {
-		String jsonString = objectMapper.writeValueAsString(objectToMatch);
-		
 		++snapshotSequence;
 
+		JsonNode objectTree = objectMapper.valueToTree(objectToMatch);
+
 		if (!snapshots.has(snapshotTestName)) {
-			JSONArray snapshotArray = new JSONArray();
-			snapshotArray.put(jsonString);
-			snapshots.accumulate(snapshotTestName, snapshotArray);
+			JsonNode snapshotArray = objectMapper.createArrayNode();
+			((ArrayNode) snapshotArray).add(objectTree);
+			((ObjectNode) snapshots).set(snapshotTestName, snapshotArray);
 			snapshotsUpdated = true;
 			return;
 		}
 
-		JSONArray snapshotArray = snapshots.getJSONArray(snapshotTestName);
-		if (snapshotArray.isNull(snapshotSequence)) {
-			try {
-				JSONObject jsonObject = new JSONObject(jsonString);
-				snapshots.accumulate(snapshotTestName, jsonObject);
-			} catch (Exception ex) {
-				snapshots.accumulate(snapshotTestName, jsonString);
-			}
+		JsonNode snapshotArray = snapshots.get(snapshotTestName);
+
+		if (!snapshotArray.has(snapshotSequence)) {
+			snapshotArray = ((ArrayNode) snapshotArray).add(objectTree);
 			snapshotsUpdated = true;
 			return;
 		}
 
-		final String toMatch = snapshots.getJSONArray(snapshotTestName).get(snapshotSequence).toString();
-		final JsonNode tree1 = objectMapper.readTree(toMatch);
-		final JsonNode tree2 = objectMapper.readTree(jsonString);
-		if (!tree1.equals(tree2)) {
+		if (!objectTree.equals(snapshotArray.get(snapshotSequence))) {
 			snapshotsUpdated = false;
 			throw new Exception("Snapshot mismatch for " + snapshotTestName + " at " + snapshotSequence);
 		}
@@ -71,12 +56,13 @@ public class SnapshotMatcher {
 
 	public void commitSnapshot(TestContext testContext) throws Exception {
 		if (snapshotsUpdated) {
-			String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/") + ".snap";
+			String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/")
+					+ ".snap";
 			File file = new File(snapshotName);
-			
+
 			PrintWriter outputFile = new PrintWriter(file.getAbsolutePath());
-			String finalSnapshot = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(
-					objectMapper.readTree(snapshots.toString()));
+			String finalSnapshot = objectMapper.writerWithDefaultPrettyPrinter()
+					.writeValueAsString(objectMapper.readTree(snapshots.toString()));
 			outputFile.write(finalSnapshot);
 			outputFile.close();
 		}
