@@ -24,7 +24,7 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = UtilityConfiguration.class)
+@SpringBootTest(classes = EmailService.class)
 @EnableAutoConfiguration
 @TestExecutionListeners(listeners = SnapshotListener.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 public class EmailServiceTest {
@@ -45,7 +45,9 @@ public class EmailServiceTest {
 
 		emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", "dto",
 				new Object() {
+					@SuppressWarnings("unused")
 					public String testField1 = "test1";
+					@SuppressWarnings("unused")
 					public String testField2 = "test2";
 				}, Locale.ENGLISH);
 
