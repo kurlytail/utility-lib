@@ -78,13 +78,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>absolute directory</id>
-            <url>file:///data/maven/repo</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
         <java.version>1.8</java.version>
         <aspectj.version>1.8.13</aspectj.version>
@@ -132,6 +125,13 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>absolute directory</id>
+            <url>file:///data/maven/repo</url>
+        </repository>
+    </distributionManagement>
+    
     <scm>
         <url>https://www.github.com/kurlytail/utility-lib</url>
         <connection>scm:git:https://www.github.com/kurlytail/utility-lib</connection>
