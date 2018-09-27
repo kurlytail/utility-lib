@@ -54,7 +54,7 @@ public class SnapshotMatcher {
 		}
 
 		JsonNode compareTo = snapshotArray.get(snapshotSequence);
-		if (objectTree == compareTo || !objectTree.toString().equals(compareTo.toString())) {
+		if (objectTree == compareTo || !objectTree.equals(compareTo)) {
 			snapshotsUpdated = false;
 			LOGGER.severe("Snapshot mismatch");
 			LOGGER.severe("*****  EXPECTED *****");
