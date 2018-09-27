@@ -2,6 +2,7 @@ package com.bst.utility.testlib;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.logging.Logger;
 
 import org.springframework.test.context.TestContext;
 
@@ -18,6 +19,8 @@ public class SnapshotMatcher {
 	private int snapshotSequence = -1;
 	private String snapshotTestName;
 	private ObjectMapper objectMapper = new ObjectMapper();
+	
+	private final static Logger LOGGER = Logger.getLogger(SnapshotMatcher.class.getName());
 
 	SnapshotMatcher(TestContext testContext) throws Exception {
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
@@ -53,6 +56,11 @@ public class SnapshotMatcher {
 		JsonNode compareTo = snapshotArray.get(snapshotSequence);
 		if (objectTree == compareTo || !objectTree.toString().equals(compareTo.toString())) {
 			snapshotsUpdated = false;
+			LOGGER.severe("Snapshot mismatch");
+			LOGGER.severe("*****  EXPECTED *****");
+			LOGGER.severe(compareTo.toString());
+			LOGGER.severe("*****  RECEIVED *****");
+			LOGGER.severe(objectTree.toString());
 			throw new Exception("Snapshot mismatch for " + snapshotTestName + " at " + snapshotSequence);
 		}
 	}
