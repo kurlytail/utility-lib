@@ -133,9 +133,9 @@
     </build>
 
     <scm>
-        <url>https://www.github.com/kurlytail/pmgr</url>
-        <connection>scm:git:https://www.github.com/kurlytail/pmgr</connection>
-        <developerConnection>scm:git:https://www.github.com/kurlytail/pmgr</developerConnection>
+        <url>https://www.github.com/kurlytail/utility-lib</url>
+        <connection>scm:git:https://www.github.com/kurlytail/utility-lib</connection>
+        <developerConnection>scm:git:https://www.github.com/kurlytail/utility-lib</developerConnection>
     </scm>
 
     <repositories>
