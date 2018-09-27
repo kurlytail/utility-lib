@@ -132,6 +132,12 @@
         </plugins>
     </build>
 
+    <scm>
+        <url>https://www.github.com/kurlytail/pmgr</url>
+        <connection>scm:git:https://www.github.com/kurlytail/pmgr</connection>
+        <developerConnection>scm:git:https://www.github.com/kurlytail/pmgr</developerConnection>
+    </scm>
+    
     <organization>
         <name>Brainspeed Technologies</name>
         <url>www.brainspeedtech.com</url>
