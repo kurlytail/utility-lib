@@ -17,7 +17,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.bst.configuration.utility.UtilityConfiguration;
 import com.bst.utility.components.EmailService;
 import com.bst.utility.testlib.SnapshotListener;
 import com.icegreen.greenmail.junit.GreenMailRule;
