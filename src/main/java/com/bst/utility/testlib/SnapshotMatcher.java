@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.springframework.test.context.TestContext;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,11 +19,12 @@ public class SnapshotMatcher {
 	private boolean snapshotsUpdated = false;
 	private int snapshotSequence = -1;
 	private String snapshotTestName;
-	private ObjectMapper objectMapper = new ObjectMapper();
+	private ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+	private AugmentedComparator comparator = new AugmentedComparator();
 	
 	private final static Logger LOGGER = Logger.getLogger(SnapshotMatcher.class.getName());
 
-	SnapshotMatcher(TestContext testContext) throws Exception {
+	public SnapshotMatcher(TestContext testContext) throws Exception {
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/") + ".snap";
 		File file = new File(snapshotName);
@@ -52,9 +54,9 @@ public class SnapshotMatcher {
 			snapshotsUpdated = true;
 			return;
 		}
-
+		
 		JsonNode compareTo = snapshotArray.get(snapshotSequence);
-		if (objectTree == compareTo || !objectTree.equals(compareTo)) {
+		if (objectTree == compareTo || !objectTree.equals(comparator, compareTo)) {
 			snapshotsUpdated = false;
 			LOGGER.severe("Snapshot mismatch");
 			LOGGER.severe("*****  EXPECTED *****");
