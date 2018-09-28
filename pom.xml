@@ -144,7 +144,7 @@
 
     <distributionManagement>
         <repository>
-            <id>ssh-repository</id>
+            <id>maven-scp</id>
             <url>scp://maven@maven.brainspeedtech.com/data/maven/repo</url>
         </repository>
     </distributionManagement>
