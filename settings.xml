@@ -6,7 +6,7 @@
         <server>
             <id>maven-scp</id>
             <username>maven</username>
-            <privateKey>/Users/ashwin/Library/Mobile Documents/com~apple~CloudDocs/keys/maven.pem</privateKey>
+            <privateKey>maven.pem</privateKey>
             <configuration>
                 <strictHostKeyChecking>no</strictHostKeyChecking>
                 <interactive>false</interactive>
