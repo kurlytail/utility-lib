@@ -6,42 +6,41 @@ import java.util.Locale;
 
 import javax.mail.internet.MimeMessage;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.bst.utility.components.EmailService;
 import com.bst.utility.testlib.SnapshotListener;
-import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = EmailService.class)
+@ExtendWith({ SpringExtension.class })
+@ContextConfiguration(classes = EmailService.class)
 @EnableAutoConfiguration
 @TestExecutionListeners(listeners = SnapshotListener.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@SpringBootTest
+@TestPropertySource("classpath:application.properties")
 public class EmailServiceTest {
 
 	@Autowired
 	private EmailService emailService;
+	
 
-	@Rule
-	public GreenMailRule smtpServerRule = new GreenMailRule(ServerSetupTest.ALL);
-
-	@After
-	public void cleanup() {
-		this.smtpServerRule.stop();
-	}
 
 	@Test
 	public void sendAndReceiveEmailTest() throws Exception {
 
+		final GreenMail greenMail = new GreenMail(ServerSetupTest.ALL);
+		greenMail.start();
+		
 		emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", "dto",
 				new Object() {
 					@SuppressWarnings("unused")
@@ -50,7 +49,7 @@ public class EmailServiceTest {
 					public String testField2 = "test2";
 				}, Locale.ENGLISH);
 
-		MimeMessage[] messages = smtpServerRule.getReceivedMessages();
+		MimeMessage[] messages = greenMail.getReceivedMessages();
 
 		assert (messages.length == 1);
 
@@ -59,5 +58,7 @@ public class EmailServiceTest {
 			expect(msg.getAllRecipients()).toMatchSnapshot();
 			expect(msg.getFrom()).toMatchSnapshot();
 		}
+		
+		greenMail.stop();
 	}
 }
