@@ -13,40 +13,35 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
-@Component
-public class AuditService implements ApplicationContextAware {
-
-	public static ApplicationContext applicationContext = null;
-
-	public static void autowire(final Object classToAutowire) {
-		AuditService.applicationContext.getAutowireCapableBeanFactory().autowireBean(classToAutowire);
-	}
+@Aspect
+public class RepositoryAspect {
 
 	private final Map<Method, Object> prePersistMethods = new HashMap<>();
+
 	private final Map<Method, Object> postPersistMethods = new HashMap<>();
+
 	private final Map<Method, Object> preUpdateMethods = new HashMap<>();
+
 	private final Map<Method, Object> postUpdateMethods = new HashMap<>();
+
 	private final Map<Method, Object> preRemoveMethods = new HashMap<>();
+
 	private final Map<Method, Object> postRemoveMethods = new HashMap<>();
-
 	private final Map<Method, Object> postLoadMethods = new HashMap<>();
-
-	public ApplicationContext getApplicationContext() {
-		return AuditService.applicationContext;
-	}
 
 	@EventListener
 	public void handleContextRefresh(final ContextRefreshedEvent event) {
-		final String[] beanNames = AuditService.applicationContext.getBeanDefinitionNames();
+		final String[] beanNames = event.getApplicationContext().getBeanDefinitionNames();
 		for (final String beanName : beanNames) {
-			final Object bean = AuditService.applicationContext.getBean(beanName);
+			final Object bean = event.getApplicationContext().getBean(beanName);
 			for (final Method method : bean.getClass().getMethods()) {
 				if (method.isAnnotationPresent(PrePersist.class)) {
 					this.prePersistMethods.put(method, bean);
@@ -81,55 +76,57 @@ public class AuditService implements ApplicationContextAware {
 		}
 	}
 
-	public void postLoad(final Object object) throws IllegalAccessException, InvocationTargetException {
-		for (final Method method : this.postLoadMethods.keySet()) {
-			this.invokeMethod(method, this.postLoadMethods.get(method), object);
-		}
+	@Pointcut("execution(* javax.persistence.EntityManager.merge(..)) && args(entity)")
+	public void mergeMethod(final Object entity) {
 	}
 
-	public void postPersist(final Object object) throws IllegalAccessException, InvocationTargetException {
+	@Pointcut("execution(* javax.persistence.EntityManager.persist(..)) && args(entity)")
+	public void persistMethod(final Object entity) {
+	}
+
+	@After("persistMethod(entity)")
+	public void postPersist(final JoinPoint jp, final Object entity) throws Throwable {
 		for (final Method method : this.postPersistMethods.keySet()) {
-			this.invokeMethod(method, this.postPersistMethods.get(method), object);
+			this.invokeMethod(method, this.postPersistMethods.get(method), entity);
 		}
-
 	}
 
-	public void postRemove(final Object object) throws IllegalAccessException, InvocationTargetException {
+	@After("removeMethod(entity)")
+	public void postRemove(final JoinPoint jp, final Object entity) throws Throwable {
 		for (final Method method : this.postRemoveMethods.keySet()) {
-			this.invokeMethod(method, this.postRemoveMethods.get(method), object);
+			this.invokeMethod(method, this.postRemoveMethods.get(method), entity);
 		}
-
 	}
 
-	public void postUpdate(final Object object) throws IllegalAccessException, InvocationTargetException {
+	@After("mergeMethod(entity)")
+	public void postUpdate(final JoinPoint jp, final Object entity) throws Throwable {
 		for (final Method method : this.postUpdateMethods.keySet()) {
-			this.invokeMethod(method, this.postUpdateMethods.get(method), object);
+			this.invokeMethod(method, this.postUpdateMethods.get(method), entity);
 		}
-
 	}
 
-	public void prePersist(final Object object) throws IllegalAccessException, InvocationTargetException {
+	@Before("persistMethod(entity)")
+	public void prePersist(final JoinPoint jp, final Object entity) throws Throwable {
 		for (final Method method : this.prePersistMethods.keySet()) {
-			this.invokeMethod(method, this.prePersistMethods.get(method), object);
+			this.invokeMethod(method, this.prePersistMethods.get(method), entity);
 		}
-
 	}
 
-	public void preRemove(final Object object) throws IllegalAccessException, InvocationTargetException {
+	@Before("removeMethod(entity)")
+	public void preRemove(final JoinPoint jp, final Object entity) throws Throwable {
 		for (final Method method : this.preRemoveMethods.keySet()) {
-			this.invokeMethod(method, this.preRemoveMethods.get(method), object);
+			this.invokeMethod(method, this.preRemoveMethods.get(method), entity);
 		}
 	}
 
-	public void preUpdate(final Object object) throws IllegalAccessException, InvocationTargetException {
+	@Before("mergeMethod(entity)")
+	public void preUpdate(final JoinPoint jp, final Object entity) throws Throwable {
 		for (final Method method : this.preUpdateMethods.keySet()) {
-			this.invokeMethod(method, this.preUpdateMethods.get(method), object);
+			this.invokeMethod(method, this.preUpdateMethods.get(method), entity);
 		}
 	}
 
-	@Override
-	public void setApplicationContext(final ApplicationContext ac) throws BeansException {
-		AuditService.applicationContext = ac;
+	@Pointcut("execution(* javax.persistence.EntityManager.remove(..)) && args(entity)")
+	public void removeMethod(final Object entity) {
 	}
-
 }

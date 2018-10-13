@@ -13,13 +13,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.bst.utility.components.AuditService;
+import com.bst.utility.components.RepositoryAspect;
 import com.bst.utility.testlib.SnapshotListener;
 
 @ExtendWith(SpringExtension.class)
@@ -31,10 +32,11 @@ public class AuditListenerTest {
 	@TestConfiguration
 	@EntityScan("com.bst.utility.components.test")
 	@EnableJpaRepositories("com.bst.utility.components.test")
+	@EnableAspectJAutoProxy
 	static class AuditListenerTestConfiguration {
 		@Bean
-		public AuditService getAuditService() {
-			return new AuditService();
+		public RepositoryAspect getRepositoryAspect() {
+			return new RepositoryAspect();
 		}
 
 		@Bean
@@ -74,9 +76,7 @@ public class AuditListenerTest {
 		Mockito.verify(this.mockableListener, Mockito.times(1)).prePersist(entity);
 		Mockito.verify(this.mockableListener, Mockito.times(1)).postPersist(entity);
 
-		entity = this.entityManager.refresh(entity);
-		Mockito.verify(this.mockableListener, Mockito.times(1)).postLoad(entity);
-
+		entity = this.testRepository.findById(entity.getId()).get();
 		entity.setField0("field2");
 		entity = this.testRepository.save(entity);
 
