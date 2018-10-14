@@ -1,4 +1,4 @@
-package com.bst.utility.components;
+package com.bst.utility.services;
 
 import java.io.IOException;
 import java.util.Collections;

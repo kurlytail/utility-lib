@@ -1,4 +1,4 @@
-package com.bst.utility.components;
+package com.bst.utility.services;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;

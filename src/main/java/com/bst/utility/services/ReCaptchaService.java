@@ -1,4 +1,4 @@
-package com.bst.utility.components;
+package com.bst.utility.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

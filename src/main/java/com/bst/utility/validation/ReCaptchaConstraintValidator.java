@@ -5,8 +5,8 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.bst.utility.components.ReCaptchaService;
 import com.bst.utility.constraints.ValidReCaptcha;
+import com.bst.utility.services.ReCaptchaService;
 
 public class ReCaptchaConstraintValidator implements ConstraintValidator<ValidReCaptcha, String> {
 
