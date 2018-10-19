@@ -30,7 +30,7 @@ public class ReCaptchaConstraintValidator implements ConstraintValidator<ValidRe
 		}
 
 		if ((reCaptchaResponse == null) || reCaptchaResponse.isEmpty()) {
-			return true;
+			return false;
 		}
 
 		return this.reCaptchaService.validate(reCaptchaResponse);
