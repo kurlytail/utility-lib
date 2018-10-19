@@ -48,19 +48,19 @@ public class AuditListenerTest {
 	private static Logger LOG = LoggerFactory.getLogger(AuditListenerTest.class);
 
 	@Autowired
-	private TestEntityManager entityManager;
+	private TestEntityListener entityListener;
 
 	@Autowired
-	private TestEntityRepository testRepository;
+	private TestEntityManager entityManager;
+
+	@MockBean
+	private TestEntityMockableListener mockableListener;
 
 	@Autowired
 	private TestEntity2Repository test2Repository;
 
 	@Autowired
-	private TestEntityListener entityListener;
-
-	@MockBean
-	private TestEntityMockableListener mockableListener;
+	private TestEntityRepository testRepository;
 
 	@Test
 	public void testListener() throws Exception {

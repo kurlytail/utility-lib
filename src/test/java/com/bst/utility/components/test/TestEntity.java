@@ -11,12 +11,12 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TestEntity {
+	private String field0;
+
+	private String field1;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-
-	private String field0;
-	private String field1;
 
 	@Override
 	public boolean equals(final Object obj) {
@@ -70,9 +70,9 @@ public class TestEntity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.field0 == null) ? 0 : this.field0.hashCode());
-		result = prime * result + ((this.field1 == null) ? 0 : this.field1.hashCode());
-		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+		result = (prime * result) + ((this.field0 == null) ? 0 : this.field0.hashCode());
+		result = (prime * result) + ((this.field1 == null) ? 0 : this.field1.hashCode());
+		result = (prime * result) + ((this.id == null) ? 0 : this.id.hashCode());
 		return result;
 	}
 

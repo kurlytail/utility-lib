@@ -1,7 +1,5 @@
 package com.bst.configuration.utility.test;
 
-import static com.bst.utility.testlib.SnapshotListener.expect;
-
 import java.util.Locale;
 
 import javax.mail.internet.MimeMessage;
@@ -32,16 +30,14 @@ public class EmailServiceTest {
 
 	@Autowired
 	private EmailService emailService;
-	
-
 
 	@Test
 	public void sendAndReceiveEmailTest() throws Exception {
 
 		final GreenMail greenMail = new GreenMail(ServerSetupTest.ALL);
 		greenMail.start();
-		
-		emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", "dto",
+
+		this.emailService.sendMessage(new String[] { "some@email" }, "test-email.html", "my@email", "MySubject", "dto",
 				new Object() {
 					@SuppressWarnings("unused")
 					public String testField1 = "test1";
@@ -49,16 +45,16 @@ public class EmailServiceTest {
 					public String testField2 = "test2";
 				}, Locale.ENGLISH);
 
-		MimeMessage[] messages = greenMail.getReceivedMessages();
+		final MimeMessage[] messages = greenMail.getReceivedMessages();
 
 		assert (messages.length == 1);
 
-		for (MimeMessage msg : messages) {
-			expect(msg.getContent()).toMatchSnapshot();
-			expect(msg.getAllRecipients()).toMatchSnapshot();
-			expect(msg.getFrom()).toMatchSnapshot();
+		for (final MimeMessage msg : messages) {
+			SnapshotListener.expect(msg.getContent()).toMatchSnapshot();
+			SnapshotListener.expect(msg.getAllRecipients()).toMatchSnapshot();
+			SnapshotListener.expect(msg.getFrom()).toMatchSnapshot();
 		}
-		
+
 		greenMail.stop();
 	}
 }

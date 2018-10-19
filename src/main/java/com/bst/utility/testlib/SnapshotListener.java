@@ -7,27 +7,27 @@ public class SnapshotListener extends AbstractTestExecutionListener {
 
 	private static SnapshotMatcher matcher;
 
-	@Override
-	public void beforeTestClass(TestContext testContext) throws Exception {
-		matcher = new SnapshotMatcher(testContext);
+	public static SnapshotMatcher expect(final Object obj) {
+		return SnapshotListener.matcher.matchObjectSnapshot(obj);
 	}
 
 	@Override
-	public void beforeTestMethod(TestContext testContext) throws Exception {
-		matcher.startTest(testContext);
+	public void afterTestClass(final TestContext testContext) throws Exception {
+		SnapshotListener.matcher.commitSnapshot(testContext);
 	}
 
 	@Override
-	public void afterTestMethod(TestContext testContext) throws Exception {
-		matcher.commitTest(testContext);
+	public void afterTestMethod(final TestContext testContext) throws Exception {
+		SnapshotListener.matcher.commitTest(testContext);
 	}
 
 	@Override
-	public void afterTestClass(TestContext testContext) throws Exception {
-		matcher.commitSnapshot(testContext);
+	public void beforeTestClass(final TestContext testContext) throws Exception {
+		SnapshotListener.matcher = new SnapshotMatcher(testContext);
 	}
 
-	public static SnapshotMatcher expect(Object obj) {
-		return matcher.matchObjectSnapshot(obj);
+	@Override
+	public void beforeTestMethod(final TestContext testContext) throws Exception {
+		SnapshotListener.matcher.startTest(testContext);
 	}
 }

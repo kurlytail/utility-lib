@@ -16,7 +16,7 @@ import org.openqa.selenium.safari.SafariDriver;
 @Target(ElementType.TYPE)
 public @interface SeleniumTest {
 
-    Class<? extends WebDriver> driver() default SafariDriver.class;
+	String baseUrl() default "http://localhost:8080";
 
-    String baseUrl() default "http://localhost:8080";
+	Class<? extends WebDriver> driver() default SafariDriver.class;
 }

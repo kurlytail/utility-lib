@@ -14,84 +14,86 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class SnapshotMatcher {
-	private JsonNode snapshots;
-	private Object objectToMatch;
-	private boolean snapshotsUpdated = false;
-	private int snapshotSequence = -1;
-	private String snapshotTestName;
-	private ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
-	private AugmentedComparator comparator = new AugmentedComparator();
-	
 	private final static Logger LOGGER = Logger.getLogger(SnapshotMatcher.class.getName());
+	private final AugmentedComparator comparator = new AugmentedComparator();
+	private final ObjectMapper objectMapper = new ObjectMapper()
+			.enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+	private Object objectToMatch;
+	private final JsonNode snapshots;
+	private int snapshotSequence = -1;
+	private boolean snapshotsUpdated = false;
 
-	public SnapshotMatcher(TestContext testContext) throws Exception {
-		objectMapper.setSerializationInclusion(Include.NON_NULL);
-		String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/") + ".snap";
-		File file = new File(snapshotName);
-		snapshots = file.exists() ? objectMapper.readTree(file) : objectMapper.createObjectNode();
+	private String snapshotTestName;
+
+	public SnapshotMatcher(final TestContext testContext) throws Exception {
+		this.objectMapper.setSerializationInclusion(Include.NON_NULL);
+		final String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/")
+				+ ".snap";
+		final File file = new File(snapshotName);
+		this.snapshots = file.exists() ? this.objectMapper.readTree(file) : this.objectMapper.createObjectNode();
 	}
 
-	public void toMatchSnapshot() throws Exception {
-		++snapshotSequence;
-
-		JsonNode objectTree = objectMapper.valueToTree(objectToMatch);
-		if (objectToMatch == null) {
-			objectTree = objectMapper.createObjectNode();
-		}
-
-		if (!snapshots.has(snapshotTestName)) {
-			JsonNode snapshotArray = objectMapper.createArrayNode();
-			((ArrayNode) snapshotArray).add(objectTree);
-			((ObjectNode) snapshots).set(snapshotTestName, snapshotArray);
-			snapshotsUpdated = true;
-			return;
-		}
-
-		JsonNode snapshotArray = snapshots.get(snapshotTestName);
-
-		if (!snapshotArray.has(snapshotSequence)) {
-			snapshotArray = ((ArrayNode) snapshotArray).add(objectTree);
-			snapshotsUpdated = true;
-			return;
-		}
-		
-		JsonNode compareTo = snapshotArray.get(snapshotSequence);
-		if (objectTree == compareTo || !objectTree.equals(comparator, compareTo)) {
-			snapshotsUpdated = false;
-			LOGGER.severe("Snapshot mismatch");
-			LOGGER.severe("*****  EXPECTED *****");
-			LOGGER.severe(compareTo.toString());
-			LOGGER.severe("*****  RECEIVED *****");
-			LOGGER.severe(objectTree.toString());
-			throw new Exception("Snapshot mismatch for " + snapshotTestName + " at " + snapshotSequence);
-		}
-	}
-
-	public void commitTest(TestContext testContext) {
-	}
-
-	public void commitSnapshot(TestContext testContext) throws Exception {
-		if (snapshotsUpdated) {
-			String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/")
+	public void commitSnapshot(final TestContext testContext) throws Exception {
+		if (this.snapshotsUpdated) {
+			final String snapshotName = "src/test/java/" + testContext.getTestClass().getName().replaceAll("\\.", "/")
 					+ ".snap";
-			File file = new File(snapshotName);
+			final File file = new File(snapshotName);
 
-			PrintWriter outputFile = new PrintWriter(file.getAbsolutePath());
-			String finalSnapshot = objectMapper.writerWithDefaultPrettyPrinter()
-					.writeValueAsString(objectMapper.readTree(snapshots.toString()));
+			final PrintWriter outputFile = new PrintWriter(file.getAbsolutePath());
+			final String finalSnapshot = this.objectMapper.writerWithDefaultPrettyPrinter()
+					.writeValueAsString(this.objectMapper.readTree(this.snapshots.toString()));
 			outputFile.write(finalSnapshot);
 			outputFile.close();
 		}
 	}
 
-	public SnapshotMatcher matchObjectSnapshot(Object obj) {
-		objectToMatch = obj;
+	public void commitTest(final TestContext testContext) {
+	}
+
+	public SnapshotMatcher matchObjectSnapshot(final Object obj) {
+		this.objectToMatch = obj;
 		return this;
 	}
 
-	public void startTest(TestContext testContext) {
-		snapshotSequence = -1;
-		snapshotsUpdated = false;
-		snapshotTestName = testContext.getTestMethod().getName();
+	public void startTest(final TestContext testContext) {
+		this.snapshotSequence = -1;
+		this.snapshotsUpdated = false;
+		this.snapshotTestName = testContext.getTestMethod().getName();
+	}
+
+	public void toMatchSnapshot() throws Exception {
+		++this.snapshotSequence;
+
+		JsonNode objectTree = this.objectMapper.valueToTree(this.objectToMatch);
+		if (this.objectToMatch == null) {
+			objectTree = this.objectMapper.createObjectNode();
+		}
+
+		if (!this.snapshots.has(this.snapshotTestName)) {
+			final JsonNode snapshotArray = this.objectMapper.createArrayNode();
+			((ArrayNode) snapshotArray).add(objectTree);
+			((ObjectNode) this.snapshots).set(this.snapshotTestName, snapshotArray);
+			this.snapshotsUpdated = true;
+			return;
+		}
+
+		JsonNode snapshotArray = this.snapshots.get(this.snapshotTestName);
+
+		if (!snapshotArray.has(this.snapshotSequence)) {
+			snapshotArray = ((ArrayNode) snapshotArray).add(objectTree);
+			this.snapshotsUpdated = true;
+			return;
+		}
+
+		final JsonNode compareTo = snapshotArray.get(this.snapshotSequence);
+		if ((objectTree == compareTo) || !objectTree.equals(this.comparator, compareTo)) {
+			this.snapshotsUpdated = false;
+			SnapshotMatcher.LOGGER.severe("Snapshot mismatch");
+			SnapshotMatcher.LOGGER.severe("*****  EXPECTED *****");
+			SnapshotMatcher.LOGGER.severe(compareTo.toString());
+			SnapshotMatcher.LOGGER.severe("*****  RECEIVED *****");
+			SnapshotMatcher.LOGGER.severe(objectTree.toString());
+			throw new Exception("Snapshot mismatch for " + this.snapshotTestName + " at " + this.snapshotSequence);
+		}
 	}
 }

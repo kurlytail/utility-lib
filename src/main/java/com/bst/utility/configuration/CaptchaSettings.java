@@ -7,31 +7,31 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "google.recaptcha")
 public class CaptchaSettings {
 
-    private String url;
-    private String key;
-    private String secret;
+	private String key;
+	private String secret;
+	private String url;
 
-    public String getUrl() {
-        return url;
-    }
+	public String getKey() {
+		return this.key;
+	}
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+	public String getSecret() {
+		return this.secret;
+	}
 
-    public String getKey() {
-        return key;
-    }
+	public String getUrl() {
+		return this.url;
+	}
 
-    public void setKey(String key) {
-        this.key = key;
-    }
+	public void setKey(final String key) {
+		this.key = key;
+	}
 
-    public String getSecret() {
-        return secret;
-    }
+	public void setSecret(final String secret) {
+		this.secret = secret;
+	}
 
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
+	public void setUrl(final String url) {
+		this.url = url;
+	}
 }

@@ -15,39 +15,39 @@ import org.springframework.stereotype.Component;
 public class TestEntityListener {
 	@Autowired
 	private TestEntityMockableListener mockableListener;
-	
+
 	@PostLoad
 	public void postLoad(final TestEntity object) throws Exception {
-		mockableListener.postLoad(object);
+		this.mockableListener.postLoad(object);
 	}
 
 	@PostPersist
 	public void postPersist(final TestEntity object) throws Exception {
-		mockableListener.postPersist(object);
+		this.mockableListener.postPersist(object);
 	}
 
 	@PostRemove
 	public void postRemove(final TestEntity object) throws Exception {
-		mockableListener.postRemove(object);
+		this.mockableListener.postRemove(object);
 	}
 
 	@PostUpdate
 	public void postUpdate(final TestEntity object) throws Exception {
-		mockableListener.postUpdate(object);
+		this.mockableListener.postUpdate(object);
 	}
 
 	@PrePersist
 	public void prePersist(final TestEntity object) throws Exception {
-		mockableListener.prePersist(object);
+		this.mockableListener.prePersist(object);
 	}
 
 	@PreRemove
 	public void preRemove(final TestEntity object) throws Exception {
-		mockableListener.preRemove(object);
+		this.mockableListener.preRemove(object);
 	}
 
 	@PreUpdate
 	public void preUpdate(final TestEntity object) throws Exception {
-		mockableListener.preUpdate(object);
+		this.mockableListener.preUpdate(object);
 	}
 }

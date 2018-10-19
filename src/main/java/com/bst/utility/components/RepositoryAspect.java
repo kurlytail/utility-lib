@@ -24,18 +24,18 @@ import org.springframework.context.event.EventListener;
 @Aspect
 public class RepositoryAspect {
 
-	private final Map<Method, Object> prePersistMethods = new HashMap<>();
+	private final Map<Method, Object> postLoadMethods = new HashMap<>();
 
 	private final Map<Method, Object> postPersistMethods = new HashMap<>();
 
-	private final Map<Method, Object> preUpdateMethods = new HashMap<>();
+	private final Map<Method, Object> postRemoveMethods = new HashMap<>();
 
 	private final Map<Method, Object> postUpdateMethods = new HashMap<>();
 
-	private final Map<Method, Object> preRemoveMethods = new HashMap<>();
+	private final Map<Method, Object> prePersistMethods = new HashMap<>();
 
-	private final Map<Method, Object> postRemoveMethods = new HashMap<>();
-	private final Map<Method, Object> postLoadMethods = new HashMap<>();
+	private final Map<Method, Object> preRemoveMethods = new HashMap<>();
+	private final Map<Method, Object> preUpdateMethods = new HashMap<>();
 
 	@EventListener
 	public void handleContextRefresh(final ContextRefreshedEvent event) {
@@ -71,7 +71,7 @@ public class RepositoryAspect {
 	private void invokeMethod(final Method method, final Object bean, final Object object)
 			throws IllegalAccessException, InvocationTargetException {
 		final Class<?>[] typeParameters = method.getParameterTypes();
-		if (typeParameters.length == 1 && typeParameters[0].isInstance(object)) {
+		if ((typeParameters.length == 1) && typeParameters[0].isInstance(object)) {
 			method.invoke(bean, object);
 		}
 	}

@@ -21,61 +21,62 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReCaptchaResponseFilter implements Filter {
 
-    private static final String RE_CAPTCHA_ALIAS = "reCaptchaResponse";
-    private static final String RE_CAPTCHA_RESPONSE = "g-recaptcha-response";
+	private static class ReCaptchaHttpServletRequest extends HttpServletRequestWrapper {
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
+		final Map<String, String[]> params;
 
-    @Override
-    public void doFilter(ServletRequest servletRequest,
-                         ServletResponse servletResponse,
-                         FilterChain chain) throws IOException, ServletException {
+		ReCaptchaHttpServletRequest(final HttpServletRequest request) {
+			super(request);
+			this.params = new HashMap<>(request.getParameterMap());
+			this.params.put(ReCaptchaResponseFilter.RE_CAPTCHA_ALIAS,
+					request.getParameterValues(ReCaptchaResponseFilter.RE_CAPTCHA_RESPONSE));
+		}
 
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
+		@Override
+		public String getParameter(final String name) {
+			return this.params.containsKey(name) ? this.params.get(name)[0] : null;
+		}
 
-        if (request.getParameter(RE_CAPTCHA_RESPONSE) != null) {
-            ReCaptchaHttpServletRequest reCaptchaRequest = new ReCaptchaHttpServletRequest(request);
-            chain.doFilter(reCaptchaRequest, response);
-        } else {
-            chain.doFilter(request, response);
-        }
-    }
+		@Override
+		public Map<String, String[]> getParameterMap() {
+			return this.params;
+		}
 
-    @Override
-    public void destroy() {
-    }
+		@Override
+		public Enumeration<String> getParameterNames() {
+			return Collections.enumeration(this.params.keySet());
+		}
 
-    private static class ReCaptchaHttpServletRequest extends HttpServletRequestWrapper {
+		@Override
+		public String[] getParameterValues(final String name) {
+			return this.params.get(name);
+		}
+	}
 
-        final Map<String, String[]> params;
+	private static final String RE_CAPTCHA_ALIAS = "reCaptchaResponse";
 
-        ReCaptchaHttpServletRequest(HttpServletRequest request) {
-            super(request);
-            params = new HashMap<>(request.getParameterMap());
-            params.put(RE_CAPTCHA_ALIAS, request.getParameterValues(RE_CAPTCHA_RESPONSE));
-        }
+	private static final String RE_CAPTCHA_RESPONSE = "g-recaptcha-response";
 
-        @Override
-        public String getParameter(String name) {
-            return params.containsKey(name) ? params.get(name)[0] : null;
-        }
+	@Override
+	public void destroy() {
+	}
 
-        @Override
-        public Map<String, String[]> getParameterMap() {
-            return params;
-        }
+	@Override
+	public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+			final FilterChain chain) throws IOException, ServletException {
 
-        @Override
-        public Enumeration<String> getParameterNames() {
-            return Collections.enumeration(params.keySet());
-        }
+		final HttpServletRequest request = (HttpServletRequest) servletRequest;
+		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        @Override
-        public String[] getParameterValues(String name) {
-            return params.get(name);
-        }
-    }
+		if (request.getParameter(ReCaptchaResponseFilter.RE_CAPTCHA_RESPONSE) != null) {
+			final ReCaptchaHttpServletRequest reCaptchaRequest = new ReCaptchaHttpServletRequest(request);
+			chain.doFilter(reCaptchaRequest, response);
+		} else {
+			chain.doFilter(request, response);
+		}
+	}
+
+	@Override
+	public void init(final FilterConfig filterConfig) throws ServletException {
+	}
 }

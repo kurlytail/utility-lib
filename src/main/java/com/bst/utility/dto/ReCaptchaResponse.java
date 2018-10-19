@@ -13,92 +13,86 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({
-        "success",
-        "challenge_ts",
-        "hostname",
-        "error-codes"
-})
+@JsonPropertyOrder({ "success", "challenge_ts", "hostname", "error-codes" })
 public class ReCaptchaResponse {
 
-    @JsonProperty("success")
-    private boolean success;
+	static enum ErrorCode {
+		InvalidResponse, InvalidSecret, MissingResponse, MissingSecret;
 
-    @JsonProperty("challenge_ts")
-    private Date challengeTs;
+		private static Map<String, ErrorCode> errorsMap = new HashMap<>(4);
 
-    @JsonProperty("hostname")
-    private String hostname;
+		static {
+			ErrorCode.errorsMap.put("missing-input-secret", MissingSecret);
+			ErrorCode.errorsMap.put("invalid-input-secret", InvalidSecret);
+			ErrorCode.errorsMap.put("missing-input-response", MissingResponse);
+			ErrorCode.errorsMap.put("invalid-input-response", InvalidResponse);
+		}
 
-    @JsonProperty("error-codes")
-    private ErrorCode[] errorCodes;
+		@JsonCreator
+		public static ErrorCode forValue(final String value) {
+			return ErrorCode.errorsMap.get(value.toLowerCase());
+		}
+	}
 
-    @JsonIgnore
-    public boolean hasClientError() {
-        ErrorCode[] errors = getErrorCodes();
-        if(errors == null) {
-            return false;
-        }
-        for(ErrorCode error : errors) {
-            switch(error) {
-                case InvalidResponse:
-                case MissingResponse:
-                    return true;
+	@JsonProperty("challenge_ts")
+	private Date challengeTs;
+
+	@JsonProperty("error-codes")
+	private ErrorCode[] errorCodes;
+
+	@JsonProperty("hostname")
+	private String hostname;
+
+	@JsonProperty("success")
+	private boolean success;
+
+	public Date getChallengeTs() {
+		return this.challengeTs;
+	}
+
+	public ErrorCode[] getErrorCodes() {
+		return this.errorCodes;
+	}
+
+	public String getHostname() {
+		return this.hostname;
+	}
+
+	@JsonIgnore
+	public boolean hasClientError() {
+		final ErrorCode[] errors = this.getErrorCodes();
+		if (errors == null) {
+			return false;
+		}
+		for (final ErrorCode error : errors) {
+			switch (error) {
+			case InvalidResponse:
+			case MissingResponse:
+				return true;
 			default:
 				break;
-            }
-        }
-        return false;
-    }
+			}
+		}
+		return false;
+	}
 
-    static enum ErrorCode {
-        MissingSecret,     InvalidSecret,
-        MissingResponse,   InvalidResponse;
+	public boolean isSuccess() {
+		return this.success;
+	}
 
-        private static Map<String, ErrorCode> errorsMap = new HashMap<>(4);
+	public void setChallengeTs(final Date challengeTs) {
+		this.challengeTs = challengeTs;
+	}
 
-        static {
-            errorsMap.put("missing-input-secret",   MissingSecret);
-            errorsMap.put("invalid-input-secret",   InvalidSecret);
-            errorsMap.put("missing-input-response", MissingResponse);
-            errorsMap.put("invalid-input-response", InvalidResponse);
-        }
+	public void setErrorCodes(final ErrorCode[] errorCodes) {
+		this.errorCodes = errorCodes;
+	}
 
-        @JsonCreator
-        public static ErrorCode forValue(String value) {
-            return errorsMap.get(value.toLowerCase());
-        }
-    }
+	public void setHostname(final String hostname) {
+		this.hostname = hostname;
+	}
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public Date getChallengeTs() {
-        return challengeTs;
-    }
-
-    public void setChallengeTs(Date challengeTs) {
-        this.challengeTs = challengeTs;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public ErrorCode[] getErrorCodes() {
-        return errorCodes;
-    }
-
-    public void setErrorCodes(ErrorCode[] errorCodes) {
-        this.errorCodes = errorCodes;
-    }
+	public void setSuccess(final boolean success) {
+		this.success = success;
+	}
 }

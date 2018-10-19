@@ -9,27 +9,27 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 public class SmtpServerRule extends ExternalResource {
 
-    private GreenMail smtpServer;
-    private int port;
+	private final int port;
+	private GreenMail smtpServer;
 
-    public SmtpServerRule(int port) {
-        this.port = port;
-    }
+	public SmtpServerRule(final int port) {
+		this.port = port;
+	}
 
-    @Override
-    protected void before() throws Throwable {
-        super.before();
-        smtpServer = new GreenMail(new ServerSetup(port, null, "smtp"));
-        smtpServer.start();
-    }
+	@Override
+	protected void after() {
+		super.after();
+		this.smtpServer.stop();
+	}
 
-    public MimeMessage[] getMessages() {
-        return smtpServer.getReceivedMessages();
-    }
+	@Override
+	protected void before() throws Throwable {
+		super.before();
+		this.smtpServer = new GreenMail(new ServerSetup(this.port, null, "smtp"));
+		this.smtpServer.start();
+	}
 
-    @Override
-    protected void after() {
-        super.after();
-        smtpServer.stop();
-    }
+	public MimeMessage[] getMessages() {
+		return this.smtpServer.getReceivedMessages();
+	}
 }

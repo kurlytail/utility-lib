@@ -13,12 +13,14 @@ import javax.validation.Payload;
 
 import com.bst.utility.validation.PasswordMatchesValidator;
 
-@Target({TYPE,ANNOTATION_TYPE}) 
+@Target({ TYPE, ANNOTATION_TYPE })
 @Retention(RUNTIME)
 @Constraint(validatedBy = PasswordMatchesValidator.class)
 @Documented
-public @interface PasswordMatches { 
-    String message() default "Passwords don't match";
-    Class<?>[] groups() default {}; 
-    Class<? extends Payload>[] payload() default {};
+public @interface PasswordMatches {
+	Class<?>[] groups() default {};
+
+	String message() default "Passwords don't match";
+
+	Class<? extends Payload>[] payload() default {};
 }
