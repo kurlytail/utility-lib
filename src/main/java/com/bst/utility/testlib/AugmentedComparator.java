@@ -17,9 +17,9 @@ public class AugmentedComparator implements Comparator<JsonNode> {
 			final double d1 = ((NumericNode) o1).asDouble();
 			final double d2 = ((NumericNode) o2).asDouble();
 			if (d1 == d2) { // strictly equals because it's integral value
-				return 1;
+				return 0;
 			}
 		}
-		return 0;
+		return 1;
 	}
 }

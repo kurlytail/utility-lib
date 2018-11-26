@@ -15,7 +15,7 @@ import com.bst.utility.testlib.SnapshotListener;
 public class SnapshotMatcherTest {
 
 	public class TestClass {
-		public Long value = (long) 10;
+		public Long value = (long) 20;
 	}
 
 	@Mock

@@ -108,6 +108,11 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>com.flipkart.zjsonpatch</groupId>
+        	<artifactId>zjsonpatch</artifactId>
+        	<version>0.4.6</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

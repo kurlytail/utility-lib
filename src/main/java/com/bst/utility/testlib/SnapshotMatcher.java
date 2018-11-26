@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.flipkart.zjsonpatch.JsonDiff;
 
 public class SnapshotMatcher {
 	private final static Logger LOGGER = Logger.getLogger(SnapshotMatcher.class.getName());
@@ -89,10 +90,8 @@ public class SnapshotMatcher {
 		if ((objectTree == compareTo) || !objectTree.equals(this.comparator, compareTo)) {
 			this.snapshotsUpdated = false;
 			SnapshotMatcher.LOGGER.severe("Snapshot mismatch");
-			SnapshotMatcher.LOGGER.severe("*****  EXPECTED *****");
-			SnapshotMatcher.LOGGER.severe(compareTo.toString());
-			SnapshotMatcher.LOGGER.severe("*****  RECEIVED *****");
-			SnapshotMatcher.LOGGER.severe(objectTree.toString());
+			JsonNode patchNode = JsonDiff.asJson(compareTo, objectTree);
+			SnapshotMatcher.LOGGER.severe(patchNode.toString());
 			throw new Exception("Snapshot mismatch for " + this.snapshotTestName + " at " + this.snapshotSequence);
 		}
 	}

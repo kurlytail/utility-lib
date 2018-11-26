@@ -1,8 +1,5 @@
 {
-  "useLongTest" : [ {
-    "value" : 10
-  } ],
   "testUseLong" : [ {
-    "value" : 10
+    "value" : 20
   } ]
 }
