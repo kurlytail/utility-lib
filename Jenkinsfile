@@ -33,7 +33,6 @@ pipeline {
                  withMaven (options: [
                 	dependenciesFingerprintPublisher(disabled: false),
                 	concordionPublisher(disabled: false),
-                	artifactsPublisher(disabled: true),
                 	pipelineGraphPublisher(disabled: false, lifecycleThreshold: "install")
                 ]) {
                     sh '/usr/local/bin/mvn --batch-mode release:update-versions -DautoVersionSubmodules=true -DdevelopmentVersion=$MAVEN_VERSION_NUMBER'
