@@ -17,6 +17,8 @@ pipeline {
                 script {
                     loadLibrary()
                     env['MAVEN_VERSION_NUMBER'] = getMavenVersion 'kurlytail/utility-lib/master', params.BUILD_VERSION_PREFIX, params.BUILDS_OFFSET
+                    env.PATH = env.PATH + ':/usr/local/bin'
+                	currentBuild.displayName = env['MAVEN_VERSION_NUMBER']
                 }
             }
         }
