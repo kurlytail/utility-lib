@@ -17,7 +17,6 @@ pipeline {
                 script {
                     loadLibrary()
                     env['MAVEN_VERSION_NUMBER'] = getMavenVersion 'kurlytail/utility-lib/master', params.BUILD_VERSION_PREFIX, params.BUILDS_OFFSET
-                    env.PATH = env.PATH + ':/usr/local/bin'
                 	currentBuild.displayName = env['MAVEN_VERSION_NUMBER']
                 }
             }
@@ -32,11 +31,14 @@ pipeline {
                 sh 'rm -rf *'
      
                 checkout scm
-                 withMaven (options: [
-                	dependenciesFingerprintPublisher(disabled: false),
-                	concordionPublisher(disabled: false),
-                	pipelineGraphPublisher(disabled: false, lifecycleThreshold: "install")
-                ]) {
+                 withMaven (
+                 	maven: "Maven",
+                 	options: [
+	                	dependenciesFingerprintPublisher(disabled: false),
+	                	concordionPublisher(disabled: false),
+	                	pipelineGraphPublisher(disabled: false, lifecycleThreshold: "install")
+                	]
+                ) {
                     sh 'mvn --batch-mode release:update-versions -DautoVersionSubmodules=true -DdevelopmentVersion=$MAVEN_VERSION_NUMBER'
                     sh 'mvn -s settings.xml clean deploy --update-snapshots'
                 }
