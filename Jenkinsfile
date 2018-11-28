@@ -33,7 +33,7 @@ pipeline {
             
             steps {
                 sh 'rm -rf *'
-     
+
                 checkout scm
                 withMaven (
                  	maven: "Maven",
