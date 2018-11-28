@@ -18,6 +18,7 @@ pipeline {
                     loadLibrary()
                     env['MAVEN_VERSION_NUMBER'] = getMavenVersion 'kurlytail/utility-lib/master', params.BUILD_VERSION_PREFIX, params.BUILDS_OFFSET
                 	currentBuild.displayName = env['MAVEN_VERSION_NUMBER']
+                	properties([ pipelineTriggers([ snapshotDependencies() ]) ])
                 }
             }
         }
@@ -31,7 +32,7 @@ pipeline {
                 sh 'rm -rf *'
      
                 checkout scm
-                 withMaven (
+                withMaven (
                  	maven: "Maven",
                  	options: [
 	                	dependenciesFingerprintPublisher(disabled: false),
