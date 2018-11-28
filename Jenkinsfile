@@ -6,11 +6,9 @@ pipeline {
         string(defaultValue: "0.0", description: 'Build version prefix', name: 'BUILD_VERSION_PREFIX')
         string(defaultValue: "", description: 'Build number offset', name: 'BUILDS_OFFSET')
     }
-    
-    pipeline {
-        triggers {
-            snapshotDependencies()
-        }
+
+    triggers {
+        snapshotDependencies()
     }
 
     stages {
